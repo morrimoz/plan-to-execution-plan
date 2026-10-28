@@ -1,58 +1,49 @@
-# Plan to Execution Plan
+# Plan to execution plan
 
-A [Cursor Agent Skill](https://cursor.com/docs/context/skills) that turns large markdown plans into lean, chunk-by-chunk execution plans an AI agent can follow without loading the full original into context.
+**Category: AI development workflows | Format: Agent skill**
 
-Works with architecture specs, feature plans, refactors, migrations — anything long enough that an agent starts losing the thread.
+Turn a detailed architecture, feature or migration plan into a smaller execution companion. Each chunk identifies the files to work on, the relevant source sections and the checks needed before continuing.
 
-## What it does
+The original plan remains the specification. The companion references it rather than duplicating schemas and acceptance criteria. This repository contains the agent workflow, not a standalone planning application.
 
-Given a detailed plan markdown file, the skill produces:
+## What it produces
 
-1. **`{ORIGINAL}_IMPLEMENTATION_PLAN.md`** — a navigation layer with phased chunks, file lists, steps, and verification blocks
-2. **Quick Section Index** (plans ≥ 500 lines) — appended to the bottom of the original for line-range lookups
+| Input | Output | Purpose |
+| --- | --- | --- |
+| A detailed Markdown plan | A companion implementation plan | Break work into ordered, verifiable chunks |
+| An original plan of at least 500 lines | A section index appended to the original | Find source sections without loading the whole document |
 
-The execution plan **references** the original by path + line range. It does not duplicate schemas, flows, or acceptance criteria.
+The workflow also handles plans that already contain useful chunking. See [SKILL.md](SKILL.md) for the decision rules and templates.
 
-## Install (Cursor)
+## Install
 
-**Option A — personal skill (works in any project)**
-
-```bash
-mkdir -p ~/.cursor/skills/plan-to-execution-plan
-curl -fsSL https://raw.githubusercontent.com/morrimoz/plan-to-execution-plan/main/SKILL.md \
-  -o ~/.cursor/skills/plan-to-execution-plan/SKILL.md
-```
-
-**Option B — project skill (shared with your team via git)**
+For Cursor:
 
 ```bash
-mkdir -p .cursor/skills/plan-to-execution-plan
-curl -fsSL https://raw.githubusercontent.com/morrimoz/plan-to-execution-plan/main/SKILL.md \
-  -o .cursor/skills/plan-to-execution-plan/SKILL.md
+mkdir -p ~/.cursor/skills
+git clone https://github.com/morrimoz/plan-to-execution-plan.git ~/.cursor/skills/plan-to-execution-plan
 ```
 
-Restart Cursor or start a new agent session after installing.
+For Claude Code, use `~/.claude/skills/plan-to-execution-plan`. For a shared project, use the corresponding project-local skills directory. Start a new agent session after installation.
 
-## Use
+## Example request
 
-In Cursor Agent chat:
-
-```
-/plan-to-execution-plan
-```
-
-Then point at your plan file, e.g.:
-
-```
-Turn docs/my_feature_plan.md into an execution plan.
+```text
+Use plan-to-execution-plan on docs/integration-plan.md.
+Keep the source plan authoritative and give each chunk a verification step.
 ```
 
-Or attach the plan and ask for an implementation / execution / build breakdown.
+The resulting companion gives the agent a bounded next task while keeping detailed requirements available by reference.
 
-## Claude Code
+## Tradeoffs
 
-Copy `SKILL.md` into your project's `.claude/skills/plan-to-execution-plan/` directory (same content, same workflow).
+Line references must be refreshed when the original plan changes. A clearer execution plan cannot repair missing requirements or prove that the proposed architecture is correct. Review the source plan first, then verify implementation against its acceptance criteria.
 
-## License
+This repository includes workflow instructions and examples. It does not include an automated benchmark of planning quality.
 
-MIT — see [LICENSE](./LICENSE).
+## Related tools
+
+- [Webflow to clean code](https://github.com/morrimoz/webflow-to-clean-code) - A migration workflow that can be split into execution chunks.
+- [Directing motion films](https://github.com/morrimoz/directing-motion-films-with-claude-design) - A creative workflow with explicit stages and review gates.
+
+[MIT license](LICENSE)
